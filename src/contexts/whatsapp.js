@@ -19,7 +19,6 @@ import { sleep } from "../utils/config";
 import moment from "moment";
 
 import { useSnackbar } from "notistack";
-import { azAZ } from "@mui/material/locale";
 import { toast } from "react-toastify";
 
 export const WhatsAppContexts = createContext({});
@@ -305,19 +304,24 @@ function WhatsAppProvider({ children }) {
             });
         }
 
-        localStorage.setItem(
-            "@WppConfig",
-            JSON.stringify({
-                url: url,
-                apiKey: key,
-                cobranca: cobranca,
-            })
-        );
+        if (docRef.id) {
+            localStorage.setItem(
+                "@WppConfig",
+                JSON.stringify({
+                    url: url,
+                    apiKey: key,
+                    cobranca: cobranca,
+                    docRef: docRef.id,
+                })
+            );
 
-        return docRef.id;
+            return true;
+        } else {
+            return false;
+        }
     }
 
-    async function getConfig() {
+    async function getConfigWpp() {
         const configCol = collection(db, "wppConfig");
         const querySnapshot = await getDocs(configCol);
 
@@ -410,7 +414,7 @@ function WhatsAppProvider({ children }) {
                 wppStatus,
                 wppQrCode,
                 saveConfig,
-                getConfig,
+                getConfigWpp,
                 wppEnviarMsg,
             }}
         >

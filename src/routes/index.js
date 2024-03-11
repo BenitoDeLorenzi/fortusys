@@ -7,7 +7,8 @@ import Homepage from "../pages/Homepage";
 import Profile from "../pages/Profile";
 import Dashboard from "../pages/Dashboard";
 import ClientesEmAtraso from "../pages/ClienteEmAtraso";
-import BancoInter from "../pages/BancoInter";
+import BancoInter from "../pages/Cobranca/BancoInter";
+import InterConfig from "../pages/Cobranca/Config";
 import NovoBoleto from "../pages/NovoBoleto";
 import WhatsAppCriarInstancia from "../pages/Whatsapp/CriarInstancia";
 import WhatsAppListarInstancia from "../pages/Whatsapp/ListarInstancia";
@@ -44,7 +45,7 @@ export default function RoutesApp() {
                 path="/clientesEmAtraso"
                 element={
                     <Private>
-                        <Homepage title="Clientes em atraso">
+                        <Homepage title="Cobrança">
                             <ClientesEmAtraso />
                         </Homepage>
                     </Private>
@@ -54,8 +55,18 @@ export default function RoutesApp() {
                 path="/bancoInter"
                 element={
                     <Private>
-                        <Homepage title="Banco Inter">
+                        <Homepage title="Cobrança">
                             <BancoInter />
+                        </Homepage>
+                    </Private>
+                }
+            />
+            <Route
+                path="/configInter"
+                element={
+                    <Private>
+                        <Homepage title="Cobrança">
+                            <InterConfig />
                         </Homepage>
                     </Private>
                 }
@@ -64,7 +75,7 @@ export default function RoutesApp() {
                 path="/novoBoleto"
                 element={
                     <Private>
-                        <Homepage title="Novo Boleto">
+                        <Homepage title="Novo Boleto Inter">
                             <NovoBoleto />
                         </Homepage>
                     </Private>

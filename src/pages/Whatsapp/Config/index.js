@@ -15,7 +15,7 @@ import { WhatsAppContexts } from "../../../contexts/whatsapp";
 import { toast } from "react-toastify";
 
 export default function WhatsAppConfig() {
-    const { saveConfig, getConfig, wppListarInstancias } =
+    const { saveConfig, getConfigWpp, wppListarInstancias } =
         useContext(WhatsAppContexts);
 
     const [url, setUrl] = useState("");
@@ -24,7 +24,7 @@ export default function WhatsAppConfig() {
 
     useEffect(() => {
         async function fetchConfig() {
-            const result = await getConfig();
+            const result = await getConfigWpp();
             if (result) {
                 setUrl(result.url);
                 setKey(result.apiKey);
@@ -32,16 +32,14 @@ export default function WhatsAppConfig() {
             }
         }
         fetchConfig();
-    }, [getConfig, wppListarInstancias]);
+    }, [getConfigWpp, wppListarInstancias]);
 
     const handleCadastrar = async () => {
         const result = saveConfig(url, key, instancia);
         if (result) {
-            localStorage.setItem(
-                "wppConfig",
-                JSON.stringify({ apiKey: key, url: url, cobranca: instancia })
-            );
             toast.success("Dados salvos");
+        } else {
+            toast.error("Erro ao salvar os dados");
         }
     };
 

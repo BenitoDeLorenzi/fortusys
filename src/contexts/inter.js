@@ -10,7 +10,7 @@ import {
     updateDoc,
 } from "firebase/firestore";
 
-import { apiInterServ, sleep } from "../utils/config";
+import { sleep } from "../utils/config";
 
 import { WhatsAppContexts } from "./whatsapp";
 
@@ -23,11 +23,56 @@ import { useNavigate } from "react-router-dom";
 export const InterContexts = createContext({});
 
 const InterProvider = ({ children }) => {
+    const config = JSON.parse(localStorage.getItem("@InterConfig"));
     const navigate = useNavigate();
 
     const { wppEnviarMsg, getConfig } = useContext(WhatsAppContexts);
 
     const { enqueueSnackbar } = useSnackbar();
+
+    async function saveConfig(url) {
+        const configCol = collection(db, "interConfig");
+        const querySnapshot = await getDocs(configCol);
+
+        let docRef;
+
+        if (querySnapshot.size === 0) {
+            docRef = await addDoc(configCol, {
+                url: url,
+            });
+        } else {
+            const doc = querySnapshot.docs[0];
+            docRef = doc.ref;
+            await updateDoc(docRef, {
+                url: url,
+            });
+        }
+
+        if (docRef.id) {
+            localStorage.setItem(
+                "@InterConfig",
+                JSON.stringify({
+                    url: url,
+                    docRef: docRef.id,
+                })
+            );
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    async function getConfigInter() {
+        const configCol = collection(db, "interConfig");
+        const querySnapshot = await getDocs(configCol);
+
+        if (querySnapshot.size > 0) {
+            const doc = querySnapshot.docs[0];
+            return doc.data();
+        } else {
+            return null;
+        }
+    }
 
     async function getToken() {
         let result;
@@ -48,7 +93,7 @@ const InterProvider = ({ children }) => {
         const passouUmaHora = moment().isAfter(horaDepois);
 
         if (passouUmaHora) {
-            const response = await fetch(apiInterServ + "inter/getToken", {
+            const response = await fetch(config.url + "/inter/getToken", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
@@ -72,7 +117,7 @@ const InterProvider = ({ children }) => {
     }
 
     async function getBoletos(params) {
-        const response = await fetch(apiInterServ + "inter/getBoletos", {
+        const response = await fetch(config.url + "/inter/getBoletos", {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
@@ -91,7 +136,7 @@ const InterProvider = ({ children }) => {
 
     async function getSumario(params) {
         const token = await getToken();
-        const response = await fetch(apiInterServ + "inter/getSumario", {
+        const response = await fetch(config.url + "/inter/getSumario", {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
@@ -112,7 +157,7 @@ const InterProvider = ({ children }) => {
     async function getPdf(fileName, listaCodigo) {
         const token = await getToken();
         try {
-            const response = await fetch(apiInterServ + "inter/getPdf", {
+            const response = await fetch(config.url + "/inter/getPdf", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
@@ -163,7 +208,7 @@ const InterProvider = ({ children }) => {
             };
             dadosEnvio.parcela = `${o + 1}/${parcelas}`;
 
-            const response = await fetch(apiInterServ + "inter/enviarBoleto", {
+            const response = await fetch(config.url + "/inter/enviarBoleto", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
@@ -310,21 +355,18 @@ Aqui estão seus boletos para pagamento.`,
     async function cancelarBoleto(nossoNumero, codigoSolicitacao, motivo) {
         const token = await getToken();
         try {
-            const response = await fetch(
-                apiInterServ + "inter/cancelarBoleto",
-                {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json",
-                    },
-                    body: JSON.stringify({
-                        nossoNumero: nossoNumero,
-                        codigoSolicitacao: codigoSolicitacao,
-                        motivo: motivo,
-                        token: token,
-                    }),
-                }
-            );
+            const response = await fetch(config.url + "/inter/cancelarBoleto", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                    nossoNumero: nossoNumero,
+                    codigoSolicitacao: codigoSolicitacao,
+                    motivo: motivo,
+                    token: token,
+                }),
+            });
 
             if (!response.ok) {
                 throw new Error(
@@ -341,6 +383,8 @@ Aqui estão seus boletos para pagamento.`,
     return (
         <InterContexts.Provider
             value={{
+                saveConfig,
+                getConfigInter,
                 getToken,
                 getBoletos,
                 getSumario,

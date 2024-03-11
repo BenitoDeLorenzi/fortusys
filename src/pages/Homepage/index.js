@@ -2,6 +2,7 @@ import { useState, useEffect, useContext } from "react";
 
 import { AuthContexts } from "../../contexts/auth";
 import { WhatsAppContexts } from "../../contexts/whatsapp";
+import { InterContexts } from "../../contexts/inter";
 
 import {
     AppBar,
@@ -23,11 +24,11 @@ import { Link } from "react-router-dom";
 
 import MenuIcon from "@mui/icons-material/Menu";
 import Logout from "@mui/icons-material/Logout";
-import { ContentPasteOffSharp } from "@mui/icons-material";
 
 export default function Homepage({ children, title }) {
     const { user, logOut } = useContext(AuthContexts);
-    const { getConfig } = useContext(WhatsAppContexts);
+    const { getConfigWpp } = useContext(WhatsAppContexts);
+    const { getConfigInter } = useContext(InterContexts);
 
     const [openDrawer, setOpenDrawer] = useState(false);
     const [anchorEl, setAnchorEl] = useState(null);
@@ -35,16 +36,28 @@ export default function Homepage({ children, title }) {
     const open = Boolean(anchorEl);
 
     useEffect(() => {
-        handleGetConfig();
+        handleGetConfigWpp();
+        handleGetConfigInter();
     }, []);
 
-    async function handleGetConfig(params) {
+    async function handleGetConfigWpp() {
         const storagedConfig = localStorage.getItem("@WppConfig");
 
         if (!storagedConfig) {
-            console.log("Buscando config");
-            await getConfig().then((result) => {
+            console.log("Buscando config Wpp");
+            await getConfigWpp().then((result) => {
                 localStorage.setItem("@WppConfig", JSON.stringify(result));
+            });
+        }
+    }
+
+    async function handleGetConfigInter() {
+        const storagedConfig = localStorage.getItem("@InterConfig");
+
+        if (!storagedConfig) {
+            console.log("Buscando config Inter");
+            await getConfigInter().then((result) => {
+                localStorage.setItem("@InterConfig", JSON.stringify(result));
             });
         }
     }

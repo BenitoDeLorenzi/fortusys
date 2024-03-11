@@ -50,6 +50,11 @@ const menuItems = [
                 icon: <AccountBalanceIcon />,
                 link: "/bancoInter",
             },
+            {
+                name: "Configurações",
+                icon: <SettingsIcon />,
+                link: "/configInter",
+            },
         ],
     },
     {
